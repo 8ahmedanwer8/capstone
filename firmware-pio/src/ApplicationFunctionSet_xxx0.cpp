@@ -1771,7 +1771,7 @@ void ApplicationFunctionSet::ApplicationFunctionSet_IRrecv(void)
 void ApplicationFunctionSet::ApplicationFunctionSet_SerialPortDataAnalysis(void)
 {
   static String SerialPortData = "";
-  uint8_t c = "";
+  uint8_t c = '\0';
   if (Serial.available() > 0)
   {
     while (c != '}' && Serial.available() > 0)
