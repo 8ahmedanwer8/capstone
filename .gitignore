@@ -1,4 +1,22 @@
-build/
-devel/
-*.hex
+# Ignore downloaded Arduino library archives
+*.zip
+
+# === Arduino IDE build artifacts ===
 *.elf
+*.hex
+
+# Arduino CLI / PlatformIO build dirs
+build*/
+.pio/
+
+# Temporary files
+*.swp
+*.bak
+*~
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# VSCode / PlatformIO
+.vscode/
