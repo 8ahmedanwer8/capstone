@@ -6,6 +6,11 @@ RUN apt-get update && \
       ros-melodic-desktop-full \
       ros-melodic-realsense2-camera \
       ros-melodic-rplidar-ros \
+      mesa-utils \
+      nano \
+      x11-apps \
+      ros-melodic-joint-state-publisher-gui \
+>>>>>>> 86dabd78640091b19fa3f9f365adc81b231c2d92
       python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential \
     && rm -rf /var/lib/apt/lists/*
 
