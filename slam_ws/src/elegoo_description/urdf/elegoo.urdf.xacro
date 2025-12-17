@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+<robot name="elegoo_car" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- === Globals you can tweak === -->
+  <xacro:property name="chassis_l" value="0.25"/>
+  <xacro:property name="chassis_w" value="0.15"/>
+  <xacro:property name="chassis_h" value="0.05"/>
+  <xacro:property name="wheel_radius" value="0.03"/>
+  <xacro:property name="wheel_thickness" value="0.02"/>
+  <xacro:property name="track" value="0.16"/>    <!-- left-right separation -->
+  <xacro:property name="wheelbase" value="0.10"/> <!-- front-back offset from center -->
+
+  <!-- ========== BASE (no inertial on root to satisfy RViz/KDL) ========== -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="${chassis_l} ${chassis_w} ${chassis_h}"/></geometry>
+      <material name="blue"><color rgba="0 0 1 1"/></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="${chassis_l} ${chassis_w} ${chassis_h}"/></geometry>
+    </collision>
+  </link>
+
+  <!-- Helper macro for a wheel link with proper visuals/collision/inertia -->
+  <xacro:macro name="wheel" params="name">
+    <link name="${name}">
+      <visual>
+        <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_thickness}"/></geometry>
+        <material name="black"><color rgba="0 0 0 1"/></material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_thickness}"/></geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.20"/>
+        <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
+      </inertial>
+    </link>
+  </xacro:macro>
+
+  <!-- Rear driven wheels -->
+  <xacro:wheel name="left_wheel"/>
+  <xacro:wheel name="right_wheel"/>
+
+  <!-- Front “dummy” wheels (fixed to base for now) -->
+  <xacro:wheel name="front_left_wheel"/>
+  <xacro:wheel name="front_right_wheel"/>
+
+  <!-- Joints: rear are continuous (driven), front are fixed (simple model) -->
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child  link="left_wheel"/>
+    <origin xyz="0  ${track/2.0} -${chassis_h/2.0}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child  link="right_wheel"/>
+    <origin xyz="0 -${track/2.0} -${chassis_h/2.0}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <joint name="front_left_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="front_left_wheel"/>
+    <origin xyz="${wheelbase}  ${track/2.0} -${chassis_h/2.0}" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="front_right_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="front_right_wheel"/>
+    <origin xyz="${wheelbase} -${track/2.0} -${chassis_h/2.0}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Robot State Publisher expects a root; add a world fixed joint for Gazebo -->
+  <!-- <link name="world"/>
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/>
+    <child  link="base_link"/>
+    <origin xyz="0 0 ${wheel_radius + chassis_h/2.0}" rpy="0 0 0"/>
+  </joint> -->
+
+  <!-- ===================== Gazebo Extensions ===================== -->
+  <gazebo reference="left_wheel">
+    <mu1>1.0</mu1><mu2>1.0</mu2><kp>1e6</kp><kd>1.0</kd>
+  </gazebo>
+  <gazebo reference="right_wheel">
+    <mu1>1.0</mu1><mu2>1.0</mu2><kp>1e6</kp><kd>1.0</kd>
+  </gazebo>
+
+  <!-- Differential drive plugin -->
+<gazebo>
+  <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
+    <!-- ROS1 (Melodic) parameter names -->
+    <robotNamespace>/</robotNamespace>
+    <command_timeout>1.0</command_timeout>   <!-- try this -->
+    <leftJoint>left_wheel_joint</leftJoint>
+    <rightJoint>right_wheel_joint</rightJoint>
+
+    <wheelSeparation>${track}</wheelSeparation>
+    <wheelDiameter>${2.0*wheel_radius}</wheelDiameter>
+
+    <torque>2.0</torque>
+    <commandTopic>cmd_vel</commandTopic>
+    <odometryTopic>odom</odometryTopic>
+
+    <odometryFrame>odom</odometryFrame>
+    <robotBaseFrame>base_link</robotBaseFrame>
+    <publishOdom>true</publishOdom>
+    <publishTf>true</publishTf>
+
+    <!-- Helps with old/new behavior differences -->
+    <legacyMode>true</legacyMode>
+    <updateRate>50</updateRate>
+  </plugin>
+</gazebo>
+
+</robot>
