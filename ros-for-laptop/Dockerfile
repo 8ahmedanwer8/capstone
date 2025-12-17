@@ -4,6 +4,10 @@ FROM ros:melodic-ros-core-bionic
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
       ros-melodic-desktop-full \
+        mesa-utils \
+      nano \
+      x11-apps \
+      ros-melodic-joint-state-publisher-gui \
       python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential \
     && rm -rf /var/lib/apt/lists/*
 
