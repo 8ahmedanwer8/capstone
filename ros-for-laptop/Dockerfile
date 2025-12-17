@@ -1,9 +1,11 @@
 FROM ros:melodic-ros-core-bionic
 
-# 1) Install ROS desktop-full
+# 1) Install ROS desktop-full + RealSense + RPLIDAR drivers
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
       ros-melodic-desktop-full \
+      ros-melodic-realsense2-camera \
+      ros-melodic-rplidar-ros \
       python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential \
     && rm -rf /var/lib/apt/lists/*
 
