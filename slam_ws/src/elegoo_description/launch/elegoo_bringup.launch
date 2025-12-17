@@ -1,0 +1,22 @@
+<launch>
+  <!-- Robot description from xacro -->
+  <param name="robot_description"
+         command="$(find xacro)/xacro '$(find elegoo_description)/urdf/elegoo.urdf.xacro'" />
+
+  <!-- Publish TF for all links/joints in URDF -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" />
+
+  <!-- RPLidar node -->
+  <node pkg="rplidar_ros" type="rplidarNode" name="rplidar">
+    <param name="serial_port" value="/dev/ttyUSB0" />
+    <param name="serial_baudrate" value="1000000" />
+    <param name="frame_id" value="laser" />
+  </node>
+
+  <!-- Realsense driver -->
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+    <!-- Optional: if you need to override base frame name, you can set params here -->
+    <!-- <arg name="camera" default="camera" /> -->
+  </include>
+
+</launch>
