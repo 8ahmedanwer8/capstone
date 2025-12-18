@@ -3,6 +3,9 @@ set -euo pipefail
 
 IMAGE_NAME="my-ros-melodic-full"
 
+HOST_WS=$HOME/coding/ros-stuff/slam_ws
+mkdir -p "$HOST_WS"
+
 XAUTH=/tmp/.docker.xauth
 if [ ! -f "$XAUTH" ]; then
   xauth_list=$(xauth nlist :0 | sed -e 's/^..../ffff/')
@@ -22,7 +25,7 @@ docker run -it --rm \
   --env="XAUTHORITY=$XAUTH" \
   --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
   --volume="$XAUTH:$XAUTH" \
-  --volume="slam_ws:/root/ros_ws" \
+  --volume="$HOST_WS:/root/ros_ws:rw" \
   --runtime=nvidia \
   "$IMAGE_NAME" \
   bash
